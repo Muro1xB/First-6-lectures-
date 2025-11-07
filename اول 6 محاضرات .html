@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination System - by Mohamed Salah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #dbeafe;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --success-color: #10b981;
+            --highlight-color: #fef08a;
+            --explanation-bg: #FFF9E6;
+            --correct-bg: #d1fae5;
+            --wrong-border: #ef4444;
+            --text-color: #1f2937;
+            --light-text: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            line-height: 1.6;
+            direction: ltr;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .heart {
+            color: #e11d48;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Home Page Styles */
+        .lecture-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .lecture-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .lecture-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .lecture-card p {
+            color: var(--light-text);
+            margin-bottom: 15px;
+        }
+
+        .lecture-card .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .lecture-card .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Exam Page Styles */
+        .exam-container {
+            display: none;
+        }
+
+        .exam-header {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exam-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .timer.warning {
+            color: var(--warning-color);
+        }
+
+        .timer.danger {
+            color: var(--danger-color);
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 1s linear;
+        }
+
+        .questions-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 80px;
+            box-shadow: var(--shadow);
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .question:last-child {
+            border-bottom: none;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .difficulty {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .difficulty.easy {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty.medium {
+            background-color: #fed7aa;
+            color: #92400e;
+        }
+
+        .difficulty.hard {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .choice {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .choice:hover {
+            background-color: var(--primary-light);
+        }
+
+        .choice input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .choice.correct {
+            background-color: var(--correct-bg);
+        }
+
+        .choice.wrong {
+            border: 1px solid var(--wrong-border);
+        }
+
+        .highlight {
+            background-color: var(--highlight-color);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .explanation {
+            background-color: var(--explanation-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        /* Results Page Styles */
+        .results-container {
+            display: none;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 80px;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            color: var(--light-text);
+        }
+
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .exam-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .timer-container {
+                width: 100%;
+            }
+
+            .progress-bar {
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Examination System - by Mohamed Salah</h1>
+            <div class="subtitle">
+                صلّ على النبي ﷺ <span class="heart">❤️</span>
+            </div>
+        </header>
+
+        <!-- Home Page -->
+        <div id="homePage" class="home-page">
+            <div class="lecture-cards" id="lectureCards">
+                <!-- Lecture cards will be dynamically generated here -->
+            </div>
+        </div>
+
+        <!-- Exam Page -->
+        <div id="examPage" class="exam-container">
+            <div class="exam-header">
+                <div>
+                    <h2 class="exam-title" id="examTitle">Lecture Title</h2>
+                    <div class="subtitle">
+                        صلّ على النبي ﷺ <span class="heart">❤️</span>
+                    </div>
+                </div>
+                <div class="timer-container">
+                    <div class="timer" id="timer">15:00</div>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="questions-container" id="questionsContainer">
+                <!-- Questions will be dynamically generated here -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="finishExamBtn">Finish Exam</button>
+                <button class="btn btn-secondary" id="backToMenuBtn">Back to Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="resultsPage" class="results-container">
+            <div class="score-container">
+                <div class="score" id="scoreDisplay">Your Score: 0/15 - 0%</div>
+                <div class="message" id="motivationalMessage">Keep up the good work!</div>
+            </div>
+            <div id="resultsQuestions">
+                <!-- Results with explanations will be dynamically generated here -->
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="retakeExamBtn">🔁 Retake Exam</button>
+                <button class="btn btn-secondary" id="backToMenuFromResultsBtn">🏠 Back to Main Menu</button>
+            </div>
+        </div>
+
+        <footer>
+            Developed by Mohamed Salah
+        </footer>
+    </div>
+
+    <script>
+        // JavaScript exam data
+        const examData = {
+            "lecture1": {
+                "title": "Microbial World",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is microbiology?",
+                        "choices": [
+                            "A) The study of large organisms",
+                            "B) The scientific study of microorganisms",
+                            "C) The study of plants only",
+                            "D) The study of animals only"
+                        ],
+                        "correct": 1,
+                        "keywords": ["microbiology", "microorganisms", "scientific study"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الميكروبيولوجيا هي الدراسة العلمية للكائنات الدقيقة التي لا يمكن رؤيتها بالعين المجردة. الخيار B هو الصحيح لأنه يعرف الميكروبيولوجيا بشكل دقيق. الخيارات الأخرى خاطئة لأنها تركز على كائنات كبيرة أو محددة."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "What are microorganisms?",
+                        "choices": [
+                            "A) Organisms that are visible to the naked eye",
+                            "B) Large organisms that can be seen without magnification",
+                            "C) Organisms that are too small to see with the naked eye",
+                            "D) Only bacteria and viruses"
+                        ],
+                        "correct": 2,
+                        "keywords": ["microorganisms", "small", "naked eye"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الكائنات الدقيقة هي تلك الكائنات التي صغيرة جدًا بحيث لا يمكن رؤيتها بالعين المجردة. الخيار C هو الصحيح لأنه يعرف الكائنات الدقيقة بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصف كائنات كبيرة أو محدودة."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "Which of the following is a member of the microbial world?",
+                        "choices": [
+                            "A) Humans",
+                            "B) Plants",
+                            "C) Bacteria",
+                            "D) Large animals"
+                        ],
+                        "correct": 2,
+                        "keywords": ["microbial world", "bacteria", "members"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... البكتيريا هي أحد أعضاء العالم الميكروبي. الخيار C هو الصحيح لأن البكتيريا من الكائنات الدقيقة. الخيارات الأخرى خاطئة لأن البشر والنباتات والحيوانات الكبيرة ليست من أعضاء العالم الميكروبي."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "What is the main difference between prokaryotic and eukaryotic cells?",
+                        "choices": [
+                            "A) Size of the cell",
+                            "B) Presence of nucleus",
+                            "C) Number of cells",
+                            "D) Type of nutrition"
+                        ],
+                        "correct": 1,
+                        "keywords": ["prokaryotic", "eukaryotic", "nucleus", "difference"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق الرئيسي بين الخلايا بدائية النواة وحقيقية النواة هو وجود النواة. الخلايا حقيقية النواة لها نواة محددة بينما الخلايا بدائية النواة ليس لها نواة محددة. الخيار B هو الصحيح لأنه يحدد الفرق الرئيسي بين نوعي الخلايا."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "Which of the following is NOT a type of cell mentioned in the lecture?",
+                        "choices": [
+                            "A) Prokaryotic",
+                            "B) Eukaryotic",
+                            "C) Animal",
+                            "D) Bacterial"
+                        ],
+                        "correct": 2,
+                        "keywords": ["types of cells", "prokaryotic", "eukaryotic", "bacterial"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... في المحاضرة، تم ذكر الخلايا بدائية النواة وحقيقية النواة والبكتيرية. لم يتم ذكر الخلايا الحيوانية كنوع منفصل من الخلايا في هذا السياق. الخيار C هو الصحيح لأنه النوع الذي لم يتم ذكره في المحاضرة."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "Which of the following is a characteristic of prokaryotic cells?",
+                        "choices": [
+                            "A) Have a true nucleus",
+                            "B) Have membrane-bound organelles",
+                            "C) Lack a true nucleus",
+                            "D) Are typically larger than eukaryotic cells"
+                        ],
+                        "correct": 2,
+                        "keywords": ["prokaryotic cells", "nucleus", "characteristics"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الخلايا بدائية النواة تفتقر إلى نواة حقيقية محددة. الخيار C هو الصحيح لأنه يصف سمة أساسية للخلايا بدائية النواة. الخيارات الأخرى خاطئة لأنها تصف خصائص الخلايا حقيقية النواة أو معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "How are bacteria classified?",
+                        "choices": [
+                            "A) Based on size only",
+                            "B) Based on shape and arrangement",
+                            "C) Based on color only",
+                            "D) Based on habitat only"
+                        ],
+                        "correct": 1,
+                        "keywords": ["bacteria", "classification", "shape", "arrangement"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... يتم تصنيف البكتيريا بناءً على شكلها وترتيبها. الخيار B هو الصحيح لأنه يوضح أن التصنيف يعتمد على الشكل والترتيب. الخيارات الأخرى خاطئة لأنها تحدد عوامل محدودة فقط أو غير صحيحة للتصنيف."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "What is the main characteristic of eukaryotic cells?",
+                        "choices": [
+                            "A) Lack of nucleus",
+                            "B) Presence of membrane-bound organelles",
+                            "C) Small size",
+                            "D) Simple structure"
+                        ],
+                        "correct": 1,
+                        "keywords": ["eukaryotic cells", "nucleus", "organelles", "characteristics"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الخلايا حقيقية النواة تتميز بوجود نواة محددة وأعضاء محاطة بغشاء. الخيار B هو الصحيح لأنه يحدد سمة أساسية للخلايا حقيقية النواة. الخيارات الأخرى خاطئة لأنها تصف خصائص الخلايا بدائية النواة أو معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "Which of the following is a learning objective of the microbial world lecture?",
+                        "choices": [
+                            "A) Study of human anatomy",
+                            "B) Definitions and members of microbial world",
+                            "C) Study of plant physiology",
+                            "D) Study of animal behavior"
+                        ],
+                        "correct": 1,
+                        "keywords": ["learning objectives", "definitions", "members", "microbial world"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... من أهداف التعلم في محاضرة العالم الميكروبي هي التعريفات وأعضاء العالم الميكروبي. الخيار B هو الصحيح لأنه يحدد هدف تعلم مذكور في المحاضرة. الخيارات الأخرى خاطئة لأنها تتعلق بمواضيع أخرى غير مذكورة في أهداف التعلم."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the main difference between bacteria and other microorganisms?",
+                        "choices": [
+                            "A) Bacteria are always harmful",
+                            "B) Bacteria are prokaryotic organisms",
+                            "C) Bacteria are always larger than other microorganisms",
+                            "D) Bacteria cannot reproduce"
+                        ],
+                        "correct": 1,
+                        "keywords": ["bacteria", "microorganisms", "prokaryotic", "difference"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق الرئيسي بين البكتيريا والكائنات الدقيقة الأخرى هو أن البكتيريا هي كائنات بدائية النواة. الخيار B هو الصحيح لأنه يحدد السمة المميزة للبكتيريا. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "Which of the following is a key difference between prokaryotic and eukaryotic cells?",
+                        "choices": [
+                            "A) Prokaryotic cells have more complex structures",
+                            "B) Eukaryotic cells lack genetic material",
+                            "C) Prokaryotic cells lack membrane-bound organelles",
+                            "D) Eukaryotic cells are always smaller than prokaryotic cells"
+                        ],
+                        "correct": 2,
+                        "keywords": ["prokaryotic", "eukaryotic", "organelles", "membrane-bound"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق الرئيسي بين الخلايا بدائية النواة وحقيقية النواة هو أن الخلايا بدائية النواة تفتقر إلى الأعضاء المحاطة بغشاء. الخيار C هو الصحيح لأنه يحدد الفرق الأساسي بين نوعي الخلايا. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "How are bacteria classified based on their shape?",
+                        "choices": [
+                            "A) Only as spherical",
+                            "B) Only as rod-shaped",
+                            "C) As cocci, bacilli, or spiral",
+                            "D) Based on color only"
+                        ],
+                        "correct": 2,
+                        "keywords": ["bacteria", "classification", "shape", "cocci", "bacilli", "spiral"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... يتم تصنيف البكتيريا بناءً على شكلها إلى cocci (كروية)، bacilli (عصوية)، أو حلزونية. الخيار C هو الصحيح لأنه يحدد التصنيف الصحيح للبكتيريا بناءً على الشكل. الخيارات الأخرى خاطئة لأنها محدودة أو غير صحيحة."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the relationship between prokaryotic and eukaryotic cells?",
+                        "choices": [
+                            "A) Prokaryotic cells evolved from eukaryotic cells",
+                            "B) Eukaryotic cells evolved from prokaryotic cells",
+                            "C) They evolved independently from each other",
+                            "D) They are the same type of cells"
+                        ],
+                        "correct": 1,
+                        "keywords": ["prokaryotic", "eukaryotic", "evolution", "relationship"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الخلايا حقيقية النواة تطورت من الخلايا بدائية النواة. الخيار B هو الصحيح لأنه يوضح العلاقة التطورية بين نوعي الخلايا. الخيارات الأخرى خاطئة لأنها لا تعكس العلاقة التطورية الصحيحة."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "Which of the following is NOT a member of the microbial world?",
+                        "choices": [
+                            "A) Bacteria",
+                            "B) Fungi",
+                            "C) Viruses",
+                            "D) Humans"
+                        ],
+                        "correct": 3,
+                        "keywords": ["microbial world", "members", "bacteria", "fungi", "viruses", "humans"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... البشر ليسوا من أعضاء العالم الميكروبي. الخيار D هو الصحيح لأن البشر كائنات كبيرة يمكن رؤيتها بالعين المجردة. الخيارات الأخرى خاطئة لأن البكتيريا والفطريات والفيروسات هي أعضاء في العالم الميكروبي."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the significance of studying the microbial world?",
+                        "choices": [
+                            "A) It has no practical applications",
+                            "B) It helps understand disease-causing organisms and beneficial microorganisms",
+                            "C) It is only important for academic knowledge",
+                            "D) It is only relevant to environmental studies"
+                        ],
+                        "correct": 1,
+                        "keywords": ["microbial world", "significance", "disease-causing", "beneficial microorganisms"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... دراسة العالم الميكروبي مهمة لفهم الكائنات المسببة للأمراض والكائنات الدقيقة المفيدة. الخيار B هو الصحيح لأنه يوضح الأهمية العملية لدراسة العالم الميكروبي. الخيارات الأخرى خاطئة لأنها تقلل من أهمية دراسة العالم الميكروبي."
+                    }
+                ]
+            },
+            "lecture2": {
+                "title": "Bacterial Structure Summary",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is the function of the cell wall in bacteria?",
+                        "choices": [
+                            "A) To control what enters and exits the cell",
+                            "B) To provide structural support and determine shape",
+                            "C) To produce energy for the cell",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["cell wall", "function", "structural support", "shape"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة جدار الخلية في البكتيريا هي توفير الدعم الهيكلي وتحديد شكل الخلية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لجدار الخلية. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى مثل الغشاء السيتوبلازمي أو المادة الوراثية."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "Which of the following is an essential component of bacterial cell structure?",
+                        "choices": [
+                            "A) Capsule",
+                            "B) Flagella",
+                            "C) Cell wall",
+                            "D) Pili"
+                        ],
+                        "correct": 2,
+                        "keywords": ["essential components", "cell wall", "bacterial structure"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... جدار الخلية هو مكون أساسي في بنية الخلية البكتيرية. الخيار C هو الصحيح لأن جدار الخلية ضروري لبقاء البكتيريا. الخيارات الأخرى خاطئة لأن الكبسولة والأسواط والشعيرات هي مكونات غير أساسية."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "What is the function of the cytoplasmic membrane?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To control what enters and exits the cell",
+                            "C) To store genetic information",
+                            "D) To help the cell move"
+                        ],
+                        "correct": 1,
+                        "keywords": ["cytoplasmic membrane", "function", "selective permeability"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الغشاء السيتوبلازمي هي التحكم في ما يدخل ويخرج من الخلية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للغشاء السيتوبلازمي. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "Which of the following is a non-essential component of bacterial cell structure?",
+                        "choices": [
+                            "A) Cell wall",
+                            "B) Cytoplasmic membrane",
+                            "C) Ribosomes",
+                            "D) Capsule"
+                        ],
+                        "correct": 3,
+                        "keywords": ["non-essential components", "capsule", "bacterial structure"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الكبسولة هي مكون غير أساسي في بنية الخلية البكتيرية. الخيار D هو الصحيح لأن الكبسولة ليست ضرورية لبقاء البكتيريا. الخيارات الأخرى خاطئة لأن جدار الخلية والغشاء السيتوبلازمي والريبوسومات هي مكونات أساسية."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "What is the function of ribosomes in bacteria?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To control what enters and exits the cell",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 2,
+                        "keywords": ["ribosomes", "function", "protein synthesis"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الريبوسومات في البكتيريا هي تخليق البروتينات. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للريبوسومات. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "What is the main difference between Gram-positive and Gram-negative bacteria?",
+                        "choices": [
+                            "A) Gram-positive bacteria have a thicker peptidoglycan layer",
+                            "B) Gram-negative bacteria have a thicker peptidoglycan layer",
+                            "C) Gram-positive bacteria have an outer membrane",
+                            "D) Gram-negative bacteria lack a peptidoglycan layer"
+                        ],
+                        "correct": 0,
+                        "keywords": ["Gram-positive", "Gram-negative", "peptidoglycan", "difference"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق الرئيسي بين بكتيريا جرام موجب وبكتيريا جرام سالب هو أن بكتيريا جرام موجب لها طبقة بيبتيدوجليكان أسمك. الخيار A هو الصحيح لأنه يحدد الفرق الرئيسي بين نوعي البكتيريا. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "Which of the following is a unique feature of Gram-positive bacteria?",
+                        "choices": [
+                            "A) Outer membrane",
+                            "B) Periplasmic space",
+                            "C) Teichoic acid",
+                            "D) Lipopolysaccharide"
+                        ],
+                        "correct": 2,
+                        "keywords": ["Gram-positive", "unique feature", "teichoic acid"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... حمض التايكويك هو ميزة فريدة لبكتيريا جرام موجب. الخيار C هو الصحيح لأنه يحدد الميزة الفريدة لبكتيريا جرام موجب. الخيارات الأخرى خاطئة لأنها ميزات لبكتيريا جرام سالب."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "What is the function of the capsule in bacteria?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To protect against phagocytosis",
+                            "C) To synthesize proteins",
+                            "D) To control what enters and exits the cell"
+                        ],
+                        "correct": 1,
+                        "keywords": ["capsule", "function", "phagocytosis", "protection"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الكبسولة في البكتيريا هي الحماية ضد البلعمة. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للكبسولة. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "Which of the following is a unique feature of Gram-negative bacteria?",
+                        "choices": [
+                            "A) Thick peptidoglycan layer",
+                            "B) Teichoic acid",
+                            "C) Outer membrane",
+                            "D) Lack of periplasmic space"
+                        ],
+                        "correct": 2,
+                        "keywords": ["Gram-negative", "unique feature", "outer membrane"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الغشاء الخارجي هو ميزة فريدة لبكتيريا جرام سالب. الخيار C هو الصحيح لأنه يحدد الميزة الفريدة لبكتيريا جرام سالب. الخيارات الأخرى خاطئة لأنها إما ميزات لبكتيريا جرام موجب أو معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the function of pili in bacteria?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To mediate adherence and conjugation",
+                            "C) To synthesize proteins",
+                            "D) To control what enters and exits the cell"
+                        ],
+                        "correct": 1,
+                        "keywords": ["pili", "function", "adherence", "conjugation"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الشعيرات في البكتيريا هي الوساطة في الالتصاق والاقتران. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للشعيرات. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "What is the composition of the peptidoglycan layer in Gram-positive bacteria?",
+                        "choices": [
+                            "A) A thin layer of peptidoglycan (1-2 sheets)",
+                            "B) A thick layer of peptidoglycan (40 sheets)",
+                            "C) No peptidoglycan layer",
+                            "D) A layer of lipopolysaccharide"
+                        ],
+                        "correct": 1,
+                        "keywords": ["Gram-positive", "peptidoglycan", "composition", "thick layer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... تركيب طبقة البيبتيدوجليكان في بكتيريا جرام موجب هو طبقة سميكة (40 ورقة). الخيار B هو الصحيح لأنه يحدد التركيب الصحيح لطبقة البيبتيدوجليكان في بكتيريا جرام موجب. الخيارات الأخرى خاطئة لأنها تصف تركيب بكتيريا جرام سالب أو معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "What is the function of the outer membrane in Gram-negative bacteria?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To protect against phagocytosis",
+                            "C) To act as a barrier to certain antibiotics",
+                            "D) To synthesize proteins"
+                        ],
+                        "correct": 2,
+                        "keywords": ["outer membrane", "Gram-negative", "function", "antibiotics"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الغشاء الخارجي في بكتيريا جرام سالب هي العمل كحاجز لبعض المضادات الحيوية. الخيار C هو الصحيح لأنه يحدد وظيفة مهمة للغشاء الخارجي. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the function of the periplasmic space in Gram-negative bacteria?",
+                        "choices": [
+                            "A) To store genetic information",
+                            "B) To synthesize proteins",
+                            "C) To contain hydrolytic enzymes including β-lactamases",
+                            "D) To provide structural support"
+                        ],
+                        "correct": 2,
+                        "keywords": ["periplasmic space", "Gram-negative", "function", "β-lactamases"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الفضاء المحيط بالغشاء في بكتيريا جرام سالب هي احتواء إنزيمات التحلل المائي بما في ذلك بيتا-لاكتاماز. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للفضاء المحيط بالغشاء. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "What is the composition of the capsule in bacteria?",
+                        "choices": [
+                            "A) Peptidoglycan",
+                            "B) Lipopolysaccharide",
+                            "C) Polysaccharide, polypeptide, or hyaluronic acid",
+                            "D) Teichoic acid"
+                        ],
+                        "correct": 2,
+                        "keywords": ["capsule", "composition", "polysaccharide", "polypeptide", "hyaluronic acid"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... تركيب الكبسولة في البكتيريا هو متعدد السكريات، متعدد الببتيد، أو حمض الهيالورونيك. الخيار C هو الصحيح لأنه يحدد التركيب الصحيح للكبسولة. الخيارات الأخرى خاطئة لأنها تصف تركيب مكونات أخرى."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the function of endospores in bacteria?",
+                        "choices": [
+                            "A) To provide motility",
+                            "B) To mediate adherence",
+                            "C) To provide resistance to unfavorable conditions",
+                            "D) To synthesize proteins"
+                        ],
+                        "correct": 2,
+                        "keywords": ["endospores", "function", "resistance", "unfavorable conditions"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الأبواغ الداخلية في البكتيريا هي توفير المقاومة للظروف غير المواتية. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للأبواغ الداخلية. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    }
+                ]
+            },
+            "lecture3": {
+                "title": "Bacterial Physiology",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is bacterial growth?",
+                        "choices": [
+                            "A) Increase in number and size by cell division",
+                            "B) Decrease in number and size",
+                            "C) Change in shape only",
+                            "D) Movement from one place to another"
+                        ],
+                        "correct": 0,
+                        "keywords": ["bacterial growth", "increase", "number", "size", "cell division"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... النمو البكتيري هو الزيادة في العدد والحجم عن طريق انقسام الخلايا. الخيار A هو الصحيح لأنه يعرف النمو البكتيري بشكل دقيق. الخيارات الأخرى خاطئة لأنها لا تصف النمو البكتيري بشكل صحيح."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "What is generation time in bacteria?",
+                        "choices": [
+                            "A) The time taken by bacteria to move",
+                            "B) The time taken by bacteria to duplicate its number",
+                            "C) The time taken by bacteria to change shape",
+                            "D) The time taken by bacteria to die"
+                        ],
+                        "correct": 1,
+                        "keywords": ["generation time", "duplicate", "number", "bacteria"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وقت الجيل في البكتيريا هو الوقت الذي تستغرقه البكتيريا لمضاعفة عددها. الخيار B هو الصحيح لأنه يعرف وقت الجيل بشكل دقيق. الخيارات الأخرى خاطئة لأنها لا تصف وقت الجيل بشكل صحيح."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "What is the most common mechanism of cell replication in bacteria?",
+                        "choices": [
+                            "A) Mitosis",
+                            "B) Meiosis",
+                            "C) Binary fission",
+                            "D) Budding"
+                        ],
+                        "correct": 2,
+                        "keywords": ["cell replication", "bacteria", "binary fission", "mechanism"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الآلية الأكثر شيوعًا لتكاثر الخلايا في البكتيريا هي الانقسام الثنائي. الخيار C هو الصحيح لأنه يحدد الآلية الرئيسية لتكاثر الخلايا البكتيرية. الخيارات الأخرى خاطئة لأنها إما آليات في الكائنات حقيقية النواة أو آليات أقل شيوعًا في البكتيريا."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "Which of the following is a requirement for bacterial growth?",
+                        "choices": [
+                            "A) Light",
+                            "B) Sound",
+                            "C) Nutrients",
+                            "D) Wind"
+                        ],
+                        "correct": 2,
+                        "keywords": ["bacterial growth", "requirements", "nutrients"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... المغذيات هي أحد متطلبات نمو البكتيريا. الخيار C هو الصحيح لأنه يحدد متطلبًا أساسيًا لنمو البكتيريا. الخيارات الأخرى خاطئة لأنها ليست متطلبات لنمو البكتيريا."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "What is the function of growth factors in bacteria?",
+                        "choices": [
+                            "A) To provide energy",
+                            "B) To provide structural support",
+                            "C) To provide essential nutrients that cannot be synthesized",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 2,
+                        "keywords": ["growth factors", "function", "essential nutrients", "synthesized"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة عوامل النمو في البكتيريا هي توفير مغذيات أساسية لا يمكن تصنيعها. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية لعوامل النمو. الخيارات الأخرى خاطئة لأنها تصف وظائف مكونات أخرى."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "What is the generation time of E. coli?",
+                        "choices": [
+                            "A) 18 hours",
+                            "B) 20 minutes",
+                            "C) 2 hours",
+                            "D) 24 hours"
+                        ],
+                        "correct": 1,
+                        "keywords": ["generation time", "E. coli", "20 minutes"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وقت جيل E. coli هو 20 دقيقة. الخيار B هو الصحيح لأنه يحدد وقت الجيل الصحيح لـ E. coli. الخيارات الأخرى خاطئة لأنها إما وقت جيل لأنواع أخرى من البكتيريا أو معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "What is the function of the growth curve in bacterial physiology?",
+                        "choices": [
+                            "A) To show the movement of bacteria",
+                            "B) To show the change in bacterial number over time",
+                            "C) To show the change in bacterial shape over time",
+                            "D) To show the change in bacterial color over time"
+                        ],
+                        "correct": 1,
+                        "keywords": ["growth curve", "function", "bacterial number", "time"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة منحنى النمو في علم وظائف البكتيريا هي إظهار التغير في عدد البكتيريا مع مرور الوقت. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لمنحنى النمو. الخيارات الأخرى خاطئة لأنها لا تصف وظيفة منحنى النمو بشكل صحيح."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "Which of the following is a physical requirement for bacterial growth?",
+                        "choices": [
+                            "A) Nutrients",
+                            "B) Temperature",
+                            "C) Growth factors",
+                            "D) Minerals"
+                        ],
+                        "correct": 1,
+                        "keywords": ["physical requirement", "bacterial growth", "temperature"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... درجة الحرارة هي متطلب فيزيائي لنمو البكتيريا. الخيار B هو الصحيح لأنه يحدد متطلبًا فيزيائيًا لنمو البكتيريا. الخيارات الأخرى خاطئة لأنها متطلبات كيميائية لنمو البكتيريا."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "What is the function of carbon and nitrogen in bacterial growth?",
+                        "choices": [
+                            "A) To provide energy",
+                            "B) To provide structural support",
+                            "C) To provide essential nutrients for growth",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 2,
+                        "keywords": ["carbon", "nitrogen", "function", "essential nutrients"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الكربون والنيتروجين في نمو البكتيريا هي توفير مغذيات أساسية للنمو. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للكربون والنيتروجين. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the function of oxygen in bacterial growth?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To act as a final electron acceptor in respiration",
+                            "C) To store genetic information",
+                            "D) To provide nutrients"
+                        ],
+                        "correct": 1,
+                        "keywords": ["oxygen", "function", "electron acceptor", "respiration"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الأكسجين في نمو البكتيريا هي العمل كمتقبل إلكتروني نهائي في التنفس. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للأكسجين. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "What is the difference between heterotrophic and autotrophic bacteria?",
+                        "choices": [
+                            "A) Heterotrophic bacteria use inorganic carbon sources, autotrophic bacteria use organic carbon sources",
+                            "B) Heterotrophic bacteria use organic carbon sources, autotrophic bacteria use inorganic carbon sources",
+                            "C) Heterotrophic bacteria use oxygen, autotrophic bacteria do not use oxygen",
+                            "D) Heterotrophic bacteria are larger than autotrophic bacteria"
+                        ],
+                        "correct": 1,
+                        "keywords": ["heterotrophic", "autotrophic", "carbon sources", "difference"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق بين البكتيريا غير الذاتية التغذية والذاتية التغذية هو أن البكتيريا غير الذاتية التغذية تستخدم مصادر الكربون العضوية، بينما البكتيريا ذاتية التغذية تستخدم مصادر الكربون غير العضوية. الخيار B هو الصحيح لأنه يحدد الفرق الرئيسي بين نوعي البكتيريا. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "What is the function of the lag phase in the bacterial growth curve?",
+                        "choices": [
+                            "A) Rapid increase in bacterial number",
+                            "B) No increase in bacterial number",
+                            "C) Adaptation to new environment",
+                            "D) Death of bacteria"
+                        ],
+                        "correct": 2,
+                        "keywords": ["lag phase", "growth curve", "function", "adaptation"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة مرحلة التأخير في منحنى النمو البكتيري هي التكيف مع البيئة الجديدة. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية لمرحلة التأخير. الخيارات الأخرى خاطئة لأنها تصف مراحل أخرى في منحنى النمو."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the function of the exponential phase in the bacterial growth curve?",
+                        "choices": [
+                            "A) Adaptation to new environment",
+                            "B) Rapid increase in bacterial number",
+                            "C) No increase in bacterial number",
+                            "D) Death of bacteria"
+                        ],
+                        "correct": 1,
+                        "keywords": ["exponential phase", "growth curve", "function", "rapid increase"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة المرحلة الأسية في منحنى النمو البكتيري هي الزيادة السريعة في عدد البكتيريا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للمرحلة الأسية. الخيارات الأخرى خاطئة لأنها تصف مراحل أخرى في منحنى النمو."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "What is the function of the stationary phase in the bacterial growth curve?",
+                        "choices": [
+                            "A) Rapid increase in bacterial number",
+                            "B) Adaptation to new environment",
+                            "C) No increase in bacterial number",
+                            "D) Death of bacteria"
+                        ],
+                        "correct": 2,
+                        "keywords": ["stationary phase", "growth curve", "function", "no increase"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة المرحلة المستقرة في منحنى النمو البكتيري هي عدم الزيادة في عدد البكتيريا. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للمرحلة المستقرة. الخيارات الأخرى خاطئة لأنها تصف مراحل أخرى في منحنى النمو."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the function of the death phase in the bacterial growth curve?",
+                        "choices": [
+                            "A) Rapid increase in bacterial number",
+                            "B) No increase in bacterial number",
+                            "C) Adaptation to new environment",
+                            "D) Death of bacteria"
+                        ],
+                        "correct": 3,
+                        "keywords": ["death phase", "growth curve", "function", "death"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة مرحلة الموت في منحنى النمو البكتيري هي موت البكتيريا. الخيار D هو الصحيح لأنه يحدد الوظيفة الرئيسية لمرحلة الموت. الخيارات الأخرى خاطئة لأنها تصف مراحل أخرى في منحنى النمو."
+                    }
+                ]
+            },
+            "lecture4": {
+                "title": "Bacterial Genetics",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is genetics?",
+                        "choices": [
+                            "A) The study of inheritance of different characters from parents to offspring",
+                            "B) The study of bacterial structure",
+                            "C) The study of bacterial growth",
+                            "D) The study of bacterial metabolism"
+                        ],
+                        "correct": 0,
+                        "keywords": ["genetics", "inheritance", "parents", "offspring"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... علم الوراثة هو دراسة وراثة السمات المختلفة من الآباء إلى الأبناء. الخيار A هو الصحيح لأنه يعرف علم الوراثة بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصف مجالات أخرى في علم الأحياء."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "What is the genetic information in a bacterial cell carried on?",
+                        "choices": [
+                            "A) Only on the bacterial chromosome",
+                            "B) Only on plasmids",
+                            "C) Only on transposons",
+                            "D) On bacterial chromosome, plasmids, transposons, and bacteriophages"
+                        ],
+                        "correct": 3,
+                        "keywords": ["genetic information", "bacterial cell", "chromosome", "plasmids", "transposons", "bacteriophages"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... المعلومات الوراثية في الخلية البكتيرية تحمل على الكروموسوم البكتيري، البلازميدات، العناصر الناقلة، والبكتيرياوجات. الخيار D هو الصحيح لأنه يحدد جميع حاملات المعلومات الوراثية في الخلية البكتيرية. الخيارات الأخرى خاطئة لأنها محدودة."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "What is the composition of the bacterial chromosome?",
+                        "choices": [
+                            "A) Single circular double stranded DNA molecule",
+                            "B) Linear single stranded DNA molecule",
+                            "C) Circular single stranded RNA molecule",
+                            "D) Linear double stranded RNA molecule"
+                        ],
+                        "correct": 0,
+                        "keywords": ["bacterial chromosome", "composition", "circular", "double stranded", "DNA"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... تركيب الكروموسوم البكتيري هو جزيء DNA دائري مزدوج الشريطة. الخيار A هو الصحيح لأنه يحدد التركيب الصحيح للكروموسوم البكتيري. الخيارات الأخرى خاطئة لأنها تصف تركيبًا مختلفًا."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "What is a bacteriophage?",
+                        "choices": [
+                            "A) A type of bacteria",
+                            "B) A virus that infects bacteria",
+                            "C) A type of plasmid",
+                            "D) A type of transposon"
+                        ],
+                        "correct": 1,
+                        "keywords": ["bacteriophage", "virus", "infects", "bacteria"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... البكتيرياوج هو فيروس يصيب البكتيريا. الخيار B هو الصحيح لأنه يعرف البكتيرياوج بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصرف البكتيرياوج بشكل غير صحيح."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "What is mutation?",
+                        "choices": [
+                            "A) The transfer of DNA between bacteria",
+                            "B) The change in the base sequence of DNA",
+                            "C) The integration of phage DNA into bacterial chromosome",
+                            "D) The replication of DNA"
+                        ],
+                        "correct": 1,
+                        "keywords": ["mutation", "DNA", "base sequence", "change"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الطفرة هي التغيير في التسلسل القاعدي للـ DNA. الخيار B هو الصحيح لأنه يعرف الطفرة بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "What is the difference between lytic and lysogenic cycles?",
+                        "choices": [
+                            "A) In the lytic cycle, phage DNA is incorporated into the host genome",
+                            "B) In the lysogenic cycle, the phage replicates and lyses the host cell",
+                            "C) In the lytic cycle, the phage replicates and lyses the host cell",
+                            "D) In the lysogenic cycle, the phage does not integrate with the bacterial chromosome"
+                        ],
+                        "correct": 2,
+                        "keywords": ["lytic cycle", "lysogenic cycle", "difference", "replicates", "lyses"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق بين دورة التحلل ودورة التكاثر هو أن في دورة التحلل، يتكاثر الفيروس ويفكك الخلية المضيفة. الخيار C هو الصحيح لأنه يحدد الفرق الرئيسي بين الدورتين. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "What is the function of transposable elements?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To change position within the genome",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["transposable elements", "function", "position", "genome"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة العناصر الناقلة هي تغيير الموضع داخل الجينوم. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للعناصر الناقلة. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "What is the difference between phenotypic and genotypic variation?",
+                        "choices": [
+                            "A) Phenotypic variation is heritable, genotypic variation is not heritable",
+                            "B) Phenotypic variation is irreversible, genotypic variation is reversible",
+                            "C) Phenotypic variation is not heritable, genotypic variation is heritable",
+                            "D) Phenotypic variation is due to change in genetic constitution, genotypic variation is due to change in gene expression"
+                        ],
+                        "correct": 2,
+                        "keywords": ["phenotypic variation", "genotypic variation", "difference", "heritable"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق بين التباين المظهري والتباين الجيني هو أن التباين المظهري غير وراثي، بينما التباين الجيني وراثي. الخيار C هو الصحيح لأنه يحدد الفرق الرئيسي بين نوعي التباين. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "What is the function of transformation in bacteria?",
+                        "choices": [
+                            "A) The transfer of DNA by bacteriophage",
+                            "B) The mating of two bacterial cells",
+                            "C) The transfer of free DNA from one cell to another",
+                            "D) The change in the base sequence of DNA"
+                        ],
+                        "correct": 2,
+                        "keywords": ["transformation", "function", "DNA transfer", "free DNA"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة التحول في البكتيريا هي نقل DNA حر من خلية إلى أخرى. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للتحول. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the function of conjugation in bacteria?",
+                        "choices": [
+                            "A) The transfer of DNA by bacteriophage",
+                            "B) The transfer of free DNA from one cell to another",
+                            "C) The mating of two bacterial cells during which DNA is transferred",
+                            "D) The change in the base sequence of DNA"
+                        ],
+                        "correct": 2,
+                        "keywords": ["conjugation", "function", "mating", "DNA transfer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الاقتران في البكتيريا هي تزاوج خليتين بكتيريتين يتم خلاله نقل DNA. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية للاقتران. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "What is the function of lysogenic conversion?",
+                        "choices": [
+                            "A) To lyse the host cell",
+                            "B) To provide new properties to a bacterium as a result of expression of prophage genes",
+                            "C) To transfer DNA between bacteria",
+                            "D) To change the base sequence of DNA"
+                        ],
+                        "correct": 1,
+                        "keywords": ["lysogenic conversion", "function", "prophage genes", "new properties"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة التحول التكاثري هي توفير خصائص جديدة للبكتيريا نتيجة للتعبير عن جينات الفيروس المتكامل. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للتحول التكاثري. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "What is the difference between generalized and specialized transduction?",
+                        "choices": [
+                            "A) Generalized transduction is mediated by temperate phage, specialized transduction is mediated by lytic phage",
+                            "B) Generalized transduction can transfer any piece of bacterial DNA, specialized transduction can only transfer certain bacterial genes",
+                            "C) Generalized transduction can only transfer certain bacterial genes, specialized transduction can transfer any piece of bacterial DNA",
+                            "D) Generalized transduction is mediated by plasmids, specialized transduction is mediated by bacteriophages"
+                        ],
+                        "correct": 1,
+                        "keywords": ["generalized transduction", "specialized transduction", "difference", "DNA transfer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الفرق بين النقل العام والنقل المتخصص هو أن النقل العام يمكنه نقل أي جزء من DNA البكتيريا، بينما النقل المتخصص يمكنه فقط نقل جينات بكتيرية معينة. الخيار B هو الصحيح لأنه يحدد الفرق الرئيسي بين نوعي النقل. الخيارات الأخرى خاطئة لأنها تحتوي على معلومات غير صحيحة."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the function of the fertility factor in conjugation?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To control the transfer of DNA from donor to recipient",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["fertility factor", "conjugation", "function", "DNA transfer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة عامل الخصوبة في الاقتران هي التحكم في نقل DNA من المتبرع إلى المتلقي. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لعامل الخصوبة. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "What is the function of the prophage in lysogenic conversion?",
+                        "choices": [
+                            "A) To lyse the host cell",
+                            "B) To provide new properties to a bacterium",
+                            "C) To transfer DNA between bacteria",
+                            "D) To change the base sequence of DNA"
+                        ],
+                        "correct": 1,
+                        "keywords": ["prophage", "lysogenic conversion", "function", "new properties"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الفيروس المتكامل في التحول التكاثري هي توفير خصائص جديدة للبكتيريا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للفيروس المتكامل. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the function of mutation in bacterial genetics?",
+                        "choices": [
+                            "A) To transfer DNA between bacteria",
+                            "B) To provide new genetic traits",
+                            "C) To lyse the host cell",
+                            "D) To provide structural support"
+                        ],
+                        "correct": 1,
+                        "keywords": ["mutation", "function", "genetic traits", "bacterial genetics"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الطفرة في علم الوراثة البكتيري هي توفير سمات وراثية جديدة. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للطفرة. الخيارات الأخرى خاطئة لأنها تصف عمليات أخرى."
+                    }
+                ]
+            },
+            "lecture5": {
+                "title": "Recombinant DNA Technology",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is genetic engineering?",
+                        "choices": [
+                            "A) The study of inheritance of different characters from parents to offspring",
+                            "B) The introduction of new genes into cells in vitro",
+                            "C) The study of bacterial structure",
+                            "D) The study of bacterial growth"
+                        ],
+                        "correct": 1,
+                        "keywords": ["genetic engineering", "new genes", "cells", "in vitro"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الهندسة الوراثية هي إدخال جينات جديدة إلى الخلايا في المختبر. الخيار B هو الصحيح لأنه يعرف الهندسة الوراثية بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصف مجالات أخرى في علم الأحياء."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "What is recombinant DNA?",
+                        "choices": [
+                            "A) DNA from a bacterial chromosome only",
+                            "B) DNA from a plasmid only",
+                            "C) DNA that results from incorporation of new gene into bacterial chromosome",
+                            "D) DNA from a bacteriophage only"
+                        ],
+                        "correct": 2,
+                        "keywords": ["recombinant DNA", "new gene", "bacterial chromosome", "incorporation"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الـ DNA المركب هو DNA الذي ينتج عن دمج جين جديد في كروموسوم بكتيري. الخيار C هو الصحيح لأنه يعرف الـ DNA المركب بشكل دقيق. الخيارات الأخرى خاطئة لأنها محدودة."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "What is the function of cloning vectors?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To synthesize proteins",
+                            "C) To insert genes into cells",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 2,
+                        "keywords": ["cloning vectors", "function", "insert genes", "cells"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة نواقل الاستنساخ هي إدخال الجينات في الخلايا. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية لنواقل الاستنساخ. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "Which of the following is a cloning vector?",
+                        "choices": [
+                            "A) Ribosome",
+                            "B) Cell wall",
+                            "C) Plasmid",
+                            "D) Cytoplasmic membrane"
+                        ],
+                        "correct": 2,
+                        "keywords": ["cloning vector", "plasmid"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... البلازميد هو ناقل استنساخ. الخيار C هو الصحيح لأنه يحدد ناقل استنساخ شائع. الخيارات الأخرى خاطئة لأنها ليست نواقل استنساخ."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "What is the function of genetic engineering?",
+                        "choices": [
+                            "A) To study inheritance of different characters from parents to offspring",
+                            "B) To introduce new genes into cells",
+                            "C) To study bacterial structure",
+                            "D) To study bacterial growth"
+                        ],
+                        "correct": 1,
+                        "keywords": ["genetic engineering", "function", "new genes", "cells"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الهندسة الوراثية هي إدخال جينات جديدة إلى الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف مجالات أخرى في علم الأحياء."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "What is the function of plasmids in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To act as cloning vectors for inserting genes into cells",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["plasmids", "genetic engineering", "function", "cloning vectors"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة البلازميدات في الهندسة الوراثية هي العمل كنواقل استنساخ لإدخال الجينات في الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للبلازميدات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "What is the function of bacteriophages in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To act as cloning vectors for inserting genes into cells",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["bacteriophages", "genetic engineering", "function", "cloning vectors"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة البكتيرياوجات في الهندسة الوراثية هي العمل كنواقل استنساخ لإدخال الجينات في الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للبكتيرياوجات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "What is the function of recombinant vaccines?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To prevent infectious diseases",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["recombinant vaccines", "function", "prevent", "infectious diseases"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة اللقاحات المركبة هي منع الأمراض المعدية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للقاحات المركبة. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "What is the function of chromosomal mapping?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To find the location of genes in an organism's genome",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["chromosomal mapping", "function", "gene location", "genome"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة رسم الخرائط الكروموسومية هي إيجاد موقع الجينات في جينوم الكائن الحي. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لرسم الخرائط الكروموسومية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the function of nucleic acid probes?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To diagnose infectious diseases",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["nucleic acid probes", "function", "diagnose", "infectious diseases"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة مجسات الأحماض النووية هي تشخيص الأمراض المعدية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لمجسات الأحماض النووية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "What is the function of gene therapy?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To insert a normal gene into human cells to replace a defective gene",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["gene therapy", "function", "normal gene", "defective gene"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة العلاج الجيني هي إدخال جين طبيعي في الخلايا البشرية لاستبدال جين معيب. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للعلاج الجيني. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "What is the function of DNA sequencing?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To determine the exact sequence of nucleotide bases in DNA",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["DNA sequencing", "function", "nucleotide bases", "sequence"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة تسلسل الـ DNA هي تحديد التسلسل الدقيق لقواعد النوكليوتيدات في الـ DNA. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لتسلسل الـ DNA. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the function of interferons in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat viral infections and certain types of cancer",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["interferons", "genetic engineering", "function", "viral infections", "cancer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الإنترفيرونات في الهندسة الوراثية هي علاج الالتهابات الفيروسية وأنواع معينة من السرطان. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للإنترفيرونات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "What is the function of insulin in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat diabetes",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["insulin", "genetic engineering", "function", "diabetes"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الأنسولين في الهندسة الوراثية هي علاج مرض السكري. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للأنسولين في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the function of human growth hormone in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat growth disorders",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["human growth hormone", "genetic engineering", "function", "growth disorders"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة هرمون النمو البشري في الهندسة الوراثية هي علاج اضطرابات النمو. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لهرمون النمو البشري في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    }
+                ]
+            },
+            "lecture6": {
+                "title": "Recombinant Technology",
+                "questions": [
+                    {
+                        "id": 1,
+                        "level": "easy",
+                        "question": "What is genetic engineering?",
+                        "choices": [
+                            "A) The study of inheritance of different characters from parents to offspring",
+                            "B) The introduction of new genes into cells in vitro",
+                            "C) The study of bacterial structure",
+                            "D) The study of bacterial growth"
+                        ],
+                        "correct": 1,
+                        "keywords": ["genetic engineering", "new genes", "cells", "in vitro"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الهندسة الوراثية هي إدخال جينات جديدة إلى الخلايا في المختبر. الخيار B هو الصحيح لأنه يعرف الهندسة الوراثية بشكل دقيق. الخيارات الأخرى خاطئة لأنها تصف مجالات أخرى في علم الأحياء."
+                    },
+                    {
+                        "id": 2,
+                        "level": "easy",
+                        "question": "What is recombinant DNA?",
+                        "choices": [
+                            "A) DNA from a bacterial chromosome only",
+                            "B) DNA from a plasmid only",
+                            "C) DNA that results from incorporation of new gene into bacterial chromosome",
+                            "D) DNA from a bacteriophage only"
+                        ],
+                        "correct": 2,
+                        "keywords": ["recombinant DNA", "new gene", "bacterial chromosome", "incorporation"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... الـ DNA المركب هو DNA الذي ينتج عن دمج جين جديد في كروموسوم بكتيري. الخيار C هو الصحيح لأنه يعرف الـ DNA المركب بشكل دقيق. الخيارات الأخرى خاطئة لأنها محدودة."
+                    },
+                    {
+                        "id": 3,
+                        "level": "easy",
+                        "question": "What is the function of cloning vectors?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To synthesize proteins",
+                            "C) To insert genes into cells",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 2,
+                        "keywords": ["cloning vectors", "function", "insert genes", "cells"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة نواقل الاستنساخ هي إدخال الجينات في الخلايا. الخيار C هو الصحيح لأنه يحدد الوظيفة الرئيسية لنواقل الاستنساخ. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 4,
+                        "level": "easy",
+                        "question": "Which of the following is a cloning vector?",
+                        "choices": [
+                            "A) Ribosome",
+                            "B) Cell wall",
+                            "C) Bacteriophage",
+                            "D) Cytoplasmic membrane"
+                        ],
+                        "correct": 2,
+                        "keywords": ["cloning vector", "bacteriophage"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... البكتيرياوج هو ناقل استنساخ. الخيار C هو الصحيح لأنه يحدد ناقل استنساخ شائع. الخيارات الأخرى خاطئة لأنها ليست نواقل استنساخ."
+                    },
+                    {
+                        "id": 5,
+                        "level": "easy",
+                        "question": "What is the function of genetic engineering?",
+                        "choices": [
+                            "A) To study inheritance of different characters from parents to offspring",
+                            "B) To introduce new genes into cells",
+                            "C) To study bacterial structure",
+                            "D) To study bacterial growth"
+                        ],
+                        "correct": 1,
+                        "keywords": ["genetic engineering", "function", "new genes", "cells"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الهندسة الوراثية هي إدخال جينات جديدة إلى الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف مجالات أخرى في علم الأحياء."
+                    },
+                    {
+                        "id": 6,
+                        "level": "medium",
+                        "question": "What is the function of plasmids in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To act as cloning vectors for inserting genes into cells",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["plasmids", "genetic engineering", "function", "cloning vectors"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة البلازميدات في الهندسة الوراثية هي العمل كنواقل استنساخ لإدخال الجينات في الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للبلازميدات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 7,
+                        "level": "medium",
+                        "question": "What is the function of bacteriophages in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To act as cloning vectors for inserting genes into cells",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["bacteriophages", "genetic engineering", "function", "cloning vectors"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة البكتيرياوجات في الهندسة الوراثية هي العمل كنواقل استنساخ لإدخال الجينات في الخلايا. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للبكتيرياوجات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 8,
+                        "level": "medium",
+                        "question": "What is the function of recombinant vaccines?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To prevent infectious diseases",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["recombinant vaccines", "function", "prevent", "infectious diseases"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة اللقاحات المركبة هي منع الأمراض المعدية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للقاحات المركبة. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 9,
+                        "level": "medium",
+                        "question": "What is the function of chromosomal mapping?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To find the location of genes in an organism's genome",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["chromosomal mapping", "function", "gene location", "genome"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة رسم الخرائط الكروموسومية هي إيجاد موقع الجينات في جينوم الكائن الحي. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لرسم الخرائط الكروموسومية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 10,
+                        "level": "medium",
+                        "question": "What is the function of nucleic acid probes?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To diagnose infectious diseases",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["nucleic acid probes", "function", "diagnose", "infectious diseases"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة مجسات الأحماض النووية هي تشخيص الأمراض المعدية. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لمجسات الأحماض النووية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 11,
+                        "level": "hard",
+                        "question": "What is the function of gene therapy?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To insert a normal gene into human cells to replace a defective gene",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["gene therapy", "function", "normal gene", "defective gene"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة العلاج الجيني هي إدخال جين طبيعي في الخلايا البشرية لاستبدال جين معيب. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للعلاج الجيني. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 12,
+                        "level": "hard",
+                        "question": "What is the function of DNA sequencing?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To determine the exact sequence of nucleotide bases in DNA",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["DNA sequencing", "function", "nucleotide bases", "sequence"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة تسلسل الـ DNA هي تحديد التسلسل الدقيق لقواعد النوكليوتيدات في الـ DNA. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لتسلسل الـ DNA. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 13,
+                        "level": "hard",
+                        "question": "What is the function of interferons in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat viral infections and certain types of cancer",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["interferons", "genetic engineering", "function", "viral infections", "cancer"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الإنترفيرونات في الهندسة الوراثية هي علاج الالتهابات الفيروسية وأنواع معينة من السرطان. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للإنترفيرونات في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 14,
+                        "level": "hard",
+                        "question": "What is the function of insulin in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat diabetes",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["insulin", "genetic engineering", "function", "diabetes"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة الأنسولين في الهندسة الوراثية هي علاج مرض السكري. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية للأنسولين في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    },
+                    {
+                        "id": 15,
+                        "level": "hard",
+                        "question": "What is the function of human growth hormone in genetic engineering?",
+                        "choices": [
+                            "A) To provide structural support",
+                            "B) To treat growth disorders",
+                            "C) To synthesize proteins",
+                            "D) To store genetic information"
+                        ],
+                        "correct": 1,
+                        "keywords": ["human growth hormone", "genetic engineering", "function", "growth disorders"],
+                        "explanation": "💡 تعالى نفهمها ببساطة... وظيفة هرمون النمو البشري في الهندسة الوراثية هي علاج اضطرابات النمو. الخيار B هو الصحيح لأنه يحدد الوظيفة الرئيسية لهرمون النمو البشري في الهندسة الوراثية. الخيارات الأخرى خاطئة لأنها تصف وظائف أخرى."
+                    }
+                ]
+            }
+        };
+
+        // DOM Elements
+        const homePage = document.getElementById('homePage');
+        const examPage = document.getElementById('examPage');
+        const resultsPage = document.getElementById('resultsPage');
+        const lectureCards = document.getElementById('lectureCards');
+        const examTitle = document.getElementById('examTitle');
+        const questionsContainer = document.getElementById('questionsContainer');
+        const timer = document.getElementById('timer');
+        const progress = document.getElementById('progress');
+        const finishExamBtn = document.getElementById('finishExamBtn');
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        const retakeExamBtn = document.getElementById('retakeExamBtn');
+        const backToMenuFromResultsBtn = document.getElementById('backToMenuFromResultsBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const motivationalMessage = document.getElementById('motivationalMessage');
+        const resultsQuestions = document.getElementById('resultsQuestions');
+
+        // State Variables
+        let currentLecture = null;
+        let userAnswers = {};
+        let timerInterval = null;
+        let timeRemaining = 900; // 15 minutes in seconds
+
+        // Initialize the application
+        function init() {
+            renderLectureCards();
+            setupEventListeners();
+        }
+
+        // Render lecture cards on home page
+        function renderLectureCards() {
+            lectureCards.innerHTML = '';
+            
+            for (const lectureKey in examData) {
+                const lecture = examData[lectureKey];
+                const card = document.createElement('div');
+                card.className = 'lecture-card fade-in';
+                card.innerHTML = `
+                    <h3>${lecture.title}</h3>
+                    <p>${lecture.questions.length} Questions</p>
+                    <button class="btn" data-lecture="${lectureKey}">Start Exam</button>
+                `;
+                lectureCards.appendChild(card);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Lecture card click events
+            lectureCards.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn')) {
+                    const lectureKey = e.target.getAttribute('data-lecture');
+                    startExam(lectureKey);
+                }
+            });
+
+            // Finish exam button
+            finishExamBtn.addEventListener('click', finishExam);
+
+            // Back to menu buttons
+            backToMenuBtn.addEventListener('click', showHomePage);
+            backToMenuFromResultsBtn.addEventListener('click', showHomePage);
+
+            // Retake exam button
+            retakeExamBtn.addEventListener('click', () => {
+                if (currentLecture) {
+                    startExam(currentLecture);
+                }
+            });
+        }
+
+        // Start exam for a specific lecture
+        function startExam(lectureKey) {
+            currentLecture = lectureKey;
+            userAnswers = {};
+            timeRemaining = 900; // Reset timer to 15 minutes
+            
+            const lecture = examData[lectureKey];
+            examTitle.textContent = lecture.title;
+            
+            renderQuestions(lecture.questions);
+            startTimer();
+            
+            showExamPage();
+        }
+
+        // Render questions
+        function renderQuestions(questions) {
+            questionsContainer.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question fade-in';
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <h3>Question ${index + 1}</h3>
+                        <span class="difficulty ${question.level}">${getDifficultyLabel(question.level)}</span>
+                    </div>
+                    <p class="question-text">${question.question}</p>
+                    <div class="choices">
+                        ${question.choices.map((choice, choiceIndex) => `
+                            <label class="choice">
+                                <input type="radio" name="question${question.id}" value="${choiceIndex}">
+                                <span>${choice}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        // Get difficulty label with emoji
+        function getDifficultyLabel(level) {
+            switch (level) {
+                case 'easy': return '🟢 Easy';
+                case 'medium': return '🟡 Medium';
+                case 'hard': return '🔴 Hard';
+                default: return level;
+            }
+        }
+
+        // Start timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                updateProgressBar();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color based on time remaining
+            timer.classList.remove('warning', 'danger');
+            if (timeRemaining <= 180) { // Less than 3 minutes
+                timer.classList.add('danger');
+            } else if (timeRemaining <= 300) { // Less than 5 minutes
+                timer.classList.add('warning');
+            }
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const percentage = (timeRemaining / 900) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        // Finish exam and show results
+        function finishExam() {
+            clearInterval(timerInterval);
+            collectUserAnswers();
+            calculateResults();
+            showResultsPage();
+        }
+
+        // Collect user answers
+        function collectUserAnswers() {
+            const questions = examData[currentLecture].questions;
+            
+            questions.forEach(question => {
+                const selectedChoice = document.querySelector(`input[name="question${question.id}"]:checked`);
+                if (selectedChoice) {
+                    userAnswers[question.id] = parseInt(selectedChoice.value);
+                } else {
+                    userAnswers[question.id] = null; // No answer selected
+                }
+            });
+        }
+
+        // Calculate results
+        function calculateResults() {
+            const questions = examData[currentLecture].questions;
+            let correctCount = 0;
+            
+            questions.forEach(question => {
+                if (userAnswers[question.id] === question.correct) {
+                    correctCount++;
+                }
+            });
+            
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            scoreDisplay.textContent = `Your Score: ${correctCount}/${questions.length} – ${percentage}%`;
+            
+            // Set motivational message based on score
+            if (percentage >= 80) {
+                motivationalMessage.textContent = "Excellent work! You've mastered this topic!";
+            } else if (percentage >= 60) {
+                motivationalMessage.textContent = "Good job! With a little more practice, you'll be perfect!";
+            } else {
+                motivationalMessage.textContent = "Keep studying and try again. You'll get better!";
+            }
+            
+            renderResults(questions);
+        }
+
+        // Render results with explanations
+        function renderResults(questions) {
+            resultsQuestions.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question fade-in';
+                
+                // Highlight keywords in the question
+                let highlightedQuestion = question.question;
+                question.keywords.forEach(keyword => {
+                    const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                    highlightedQuestion = highlightedQuestion.replace(regex, `<span class="highlight">${keyword}</span>`);
+                });
+                
+                // Determine if the answer was correct
+                const isCorrect = userAnswers[question.id] === question.correct;
+                const userAnswerIndex = userAnswers[question.id];
+                
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <h3>Question ${index + 1}</h3>
+                        <span class="difficulty ${question.level}">${getDifficultyLabel(question.level)}</span>
+                    </div>
+                    <p class="question-text">${highlightedQuestion}</p>
+                    <div class="choices">
+                        ${question.choices.map((choice, choiceIndex) => {
+                            let className = '';
+                            if (choiceIndex === question.correct) {
+                                className = 'correct';
+                            } else if (choiceIndex === userAnswerIndex && !isCorrect) {
+                                className = 'wrong';
+                            }
+                            
+                            return `
+                                <label class="choice ${className}">
+                                    <input type="radio" name="resultQuestion${question.id}" value="${choiceIndex}" ${choiceIndex === userAnswerIndex ? 'checked' : ''} disabled>
+                                    <span>${choice}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="explanation show">${question.explanation}</div>
+                `;
+                resultsQuestions.appendChild(questionDiv);
+            });
+        }
+
+        // Show home page
+        function showHomePage() {
+            homePage.style.display = 'block';
+            examPage.style.display = 'none';
+            resultsPage.style.display = 'none';
+        }
+
+        // Show exam page
+        function showExamPage() {
+            homePage.style.display = 'none';
+            examPage.style.display = 'block';
+            resultsPage.style.display = 'none';
+        }
+
+        // Show results page
+        function showResultsPage() {
+            homePage.style.display = 'none';
+            examPage.style.display = 'none';
+            resultsPage.style.display = 'block';
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
